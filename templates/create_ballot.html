@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+<script
+        src="https://code.jquery.com/jquery-3.5.0.js"
+        integrity="sha256-r/AaFHrszJtwpe+tHyNi/XCfMxYpbsRg2Uqn0x3s2zc="
+        crossorigin="anonymous"></script>
+<style>
+    .modal {
+        background-color: black;
+    }
+</style>
+{% block content %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ ballotForm|crispy }}
+        {{ optionFormset.management_form }}
+        <div class="form-group">
+            Ballot options
+        </div>
+        <div id="form_set">
+            {% for form in optionFormset %}
+                <div class="row">
+                    <div class="col-sm-8">{{ form.name|as_crispy_field }}</div>
+                    <div class="col-sm-4">
+                        <button class="delete_row btn btn-outline-info shadow-none btn-block">Delete</button>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+
+        <div class="row" id="empty_form" class="added_row" style="display:none">
+            <div class="row">
+                <div class="col-sm-8">{{ optionFormset.empty_form.name|as_crispy_field }}</div>
+                <div class="col-sm-4">
+                    <button class="delete_row btn btn-outline-info shadow-none btn-block">Delete</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <p id="add_more" class="btn btn-sm shadow-none">Add another option</p>
+        </div>
+
+
+        <div class="row">
+            <button type="submit" class="btn-primary btn-sm shadow-none" data-toggle="modal"
+                    data-target="#myModal" id="submit_button">Create ballot
+            </button>
+        </div>
+
+        <div class="modal fade" id="myModal" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog-centered">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+
+    </script>
+    {#    {% if failed_submit %}#}
+    {#        <script>#}
+    {#            $(document).ready(function () {#}
+    {#                $("#pendingTransactionModal").modal('hide');#}
+    {#            });#}
+    {#        </script>#}
+    {#    {% endif %}#}
+    <script>
+        $('document').ready(function () {
+            console.log($('#id_form-TOTAL_FORMS').val());
+        })
+        $('#add_more').click(function () {
+            var form_idx = parseInt($('#id_form-TOTAL_FORMS').val());
+            console.log(form_idx);
+            $('#form_set').append($('#empty_form').html().replace(/__prefix__/g, form_idx));
+            form_idx = form_idx + 1;
+            $('#id_form-TOTAL_FORMS').val(parseInt($('#id_form-TOTAL_FORMS').val()) + 1)
+            {#$('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);#}
+            console.log($('#id_form-TOTAL_FORMS').val());
+        });
+        $(document).on('click', '.delete_row', function () {
+            {#$('#id_form-TOTAL_FORMS').val(parseInt($('#id_form-TOTAL_FORMS').val()) - 1)#}
+            console.log($(this).parent().parent().remove());
+
+        });
+    </script>
+{% endblock %}

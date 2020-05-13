@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="py-5 text-center">
+        {#        <img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">#}
+        <h1>{{ ballot.ballot_name }}</h1>
+
+        <p class="lead">Ballot ends at {{ ballot.ballot_end_date }} </p>
+        <p><strong>Remaining time:</strong> <span id="demo"></span></p>
+    </div>
+
+    {% if action_type == 'vote' %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="max_vote" value="{{ ballot.ballot_max_vote }}">
+            <input type="hidden" name="ballot_address" value="{{ ballot.ballot_address }}">
+            <h4 class="border-bottom border-gray pb-2 mb-3">You are allowed to select at
+                most {{ ballot.ballot_max_vote }}
+                option(s) from below:</h4>
+
+            {% for option in ballot.ballot_options_name %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="voted_index" value="{{ forloop.counter0 }}"
+                           id="{{ forloop.counter0 }}"/>
+                    <label class="form-check-label" for="{{ forloop.counter0 }}">{{ option }}</label>
+                </div>
+            {% endfor %}
+            {#                {% for option in ballot.ballot_options_name %}#}
+            {#                    <div style="height:40px" class="custom-control custom-radio">#}
+            {#                        <input class="custom-control-input" type="radio" value="{{ forloop.counter0 }}"#}
+            {#                               id="{{ forloop.counter0 }}" name="voted_index" required>#}
+            {#                        <label class="custom-control-label" for="{{ forloop.counter0 }}">{{ option }}</label>#}
+            {#                    </div>#}
+            {#                {% endfor %}#}
+
+            <small class="d-block text-right mt-3">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#pwdConfirmationModal"
+                        id="cast_vote">
+                    Cast your vote
+                </button>
+                {#          <a href="#">All updates</a>#}
+                {#            <button class="btn btn-primary btn-lg " type="button">Generate address and vote</button>#}
+            </small>
+            <!-- The Modal -->
+            <!-- Modal -->
+            <!-- Button trigger modal -->
+
+
+            <!-- Modal -->
+            <div class="modal fade" id="pwdConfirmationModal" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Password confirmation</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="recipient-name" class="col-form-label">Please confirm your password</label>
+                                <input type="password" id="voter_password" name="voter_password" class="form-control">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" name='vote_button' class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    {% elif action_type == 'view' %}
+        <div><h3><b>Ballot Statistics</b></h3></div>
+        <div class="row">
+            <div id="votingoptioncountchart" class="col-lg-6"></div>
+            {#            <div class="col-lg-6" id="participationchart"></div>#}
+            <div class="col-lg-6" id="barchart"></div>
+        </div>
+        <input type="hidden" name="ballot_address" value="{{ ballot.ballot_address }}">
+        {% if voted %}
+            <form method="POST">
+                <input type="hidden" name="action_type" value="{{ action_type }}">
+                {% csrf_token %}
+
+                <button type="button" class="btn btn-primary" data-toggle="modal"
+                        data-target="#pwdConfirmationModalView">
+                    Get your personal data on ballot
+                </button>
+                <div class="modal fade" id="pwdConfirmationModalView" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Password confirmation</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="recipient-name" class="col-form-label">Please confirm your
+                                        password</label>
+                                    <input type="password" name="voter_password_view"
+                                           class="form-control">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" name='view_button' class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+        <div class="my-3 p-3 bg-white rounded box-shadow">
+            <h4 class="border-bottom border-gray pb-2 mb-0">Ballot data</h4>
+            <div class="media text-muted pt-3">
+                <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                    <strong class="d-block text-gray-dark">Ballot name</strong>
+                    {{ ballot.ballot_name }}
+                </p>
+            </div>
+            <div class="media text-muted pt-3">
+                <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                    <strong class="d-block text-gray-dark">Ballot address</strong>
+                    <a href="https://ropsten.etherscan.io/address/{{ ballot.ballot_address }}">{{ ballot.ballot_address }}</a>
+                </p>
+            </div>
+            <div class="media text-muted pt-3">
+                <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                    <strong class="d-block text-gray-dark">Maximum votes allowed</strong>
+                    Voters are allowed to cast at most {{ ballot.ballot_max_vote }} vote(s)
+                </p>
+            </div>
+            {% if voted %}
+                <div class="media text-muted pt-3">
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">Voter address</strong>
+                        <a href="https://ropsten.etherscan.io/address/{{ user_info.voter_address }}">{{ user_info.voter_address }}</a>
+                    </p>
+                </div>
+                <div class="media text-muted pt-3">
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">Voted index</strong>
+                        | {% for index in user_info.voter_voted_index %} | {{ index }} | {% endfor %} |
+                    </p>
+                </div>
+                <div class="media text-muted pt-3">
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">Voted option name</strong>
+                        | {% for name in user_info.voter_voted_name %} | {{ name }} | {% endfor %} |
+                    </p>
+                </div>
+                <div class="media text-muted pt-3">
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">Transaction hash</strong>
+                        <a href="https://ropsten.etherscan.io/tx/{{ user_info.transaction_hash }}">{{ user_info.transaction_hash }}</a>
+                    </p>
+                </div>
+                {#            <small class="d-block text-right mt-3">#}
+                {#                <a href="#">All updates</a>#}
+                {#            </small>#}
+                </div>
+            {% elif not voted %}
+                {% if registered %}
+                    <div class="my-3 p-3 bg-white rounded box-shadow">
+                        <h4 class="border-bottom border-gray pb-2 mb-0">Personal data</h4>
+                        <div class="media text-muted pt-3">
+                            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                                <strong class="d-block text-gray-dark">You registered but did not vote.</strong>
+                            </p>
+                        </div>
+                    </div>
+                {% elif not registered %}
+                    <div class="my-3 p-3 bg-white rounded box-shadow">
+                        <h4 class="border-bottom border-gray pb-2 mb-0">Personal data</h4>
+                        <div class="media text-muted pt-3">
+                            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                                <strong class="d-block text-gray-dark">You did not register to this vote.</strong>
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $('#cast_vote').prop("disabled", true);
+        })
+
+        $("input[name='voted_index']").change(function () {
+            if ($("input[name='voted_index']:checked").length > {{ ballot.ballot_max_vote }} || $("input[name='voted_index']:checked").length < 1) {
+                $('#cast_vote').prop("disabled", true);
+            } else {
+                $('#cast_vote').prop("disabled", false);
+            }
+
+        })
+    </script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // Load google charts
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(drawBarChart);
+
+        {#google.charts.setOnLoadCallback(drawParticipationChart);#}
+
+
+        // Draw the chart and set the chart values
+        function drawChart() {
+            var i;
+            var arr = []
+            arr[0] = ['Option', 'Vote count']
+
+            {% for el in ballot.ballot_options_name %}
+                arr[{{ forloop.counter }}] = ['{{ el }}',]
+            {% endfor %}
+            {% for el in ballot.ballot_options_vote_count %}
+                arr[{{ forloop.counter }}][1] = {{ el }}
+            {% endfor %}
+            var data = google.visualization.arrayToDataTable(arr);
+
+            // Optional; add a title and set the width and height of the chart
+            var options = {'title': 'Vote Statistics', 'width': 550, 'height': 400, is3D: true};
+
+            // Display the chart inside the <div> element with id="piechart"
+            var chart = new google.visualization.PieChart(document.getElementById('votingoptioncountchart'));
+            chart.draw(data, options);
+        }
+
+        function drawParticipationChart() {
+
+            var data = google.visualization.arrayToDataTable([
+                ['Participation', 'Count'],
+                ['Users voted', {{ ballot.user_voted }}],
+                ['', {{ ballot.invited_users_count }} - {{ ballot.user_voted }}] //Numbers of users not voted yet
+            ]);
+
+            var options = {
+                title: 'Participation',
+                pieHole: 0.4,
+                width: 550,
+                height: 400,
+                legend: 'none',
+                pieSliceText: 'none',
+                series: {
+                    0: {
+                        tooltip: 'none',
+                        legend: 'none',
+                    },
+                },
+                slices: {
+                    0: {color: 'orange'},
+                    1: {color: 'transparent'}
+                }
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('participationchart'));
+            chart.draw(data, options);
+        }
+
+        function drawBarChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Type of users', 'Amount', {role: 'style'}],
+                ['Users voted', {{ ballot.user_voted }}, 'color: blue'],
+                ['Users registered', {{ ballot.ballot_registered_voter_count}}, 'color: green'],
+                ['Users invited', {{ ballot.invited_users_count }}, 'color:orange'],
+            ]);
+
+            var options = {
+                title: "Statistics on participants",
+                width: 600,
+                height: 400,
+                bar: {groupWidth: "95%"},
+                legend: {position: "none"},
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById('barchart'));
+            chart.draw(data, options);
+        }
+    </script>
+
+    <script>
+
+        var countDownDate = new Date("{{ ballot.ballot_end_date.isoformat }}").getTime();
+
+        // Update the count down every 1 second
+        var x = setInterval(function () {
+
+            // Get today's date and time
+            var now = new Date().getTime();
+            // Find the distance between now and the count down date
+            var distance = countDownDate - now;
+
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the result in the element with id="demo"
+            document.getElementById("demo").innerHTML = days + "d " + hours + "h "
+                + minutes + "m " + seconds + "s ";
+
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("demo").innerHTML = "EXPIRED";
+            }
+        }, 1000);
+    </script>
+{% endblock %}

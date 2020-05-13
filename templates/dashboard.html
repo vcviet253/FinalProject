@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>Available ballots</h2>
+        <a class="btn btn-outline-primary" href="{% url 'create-ballot' %}">Create new ballot</a>
+        <br>
+        <br>
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                <tr>
+                    <th>Ballot ID</th>
+                    <th>Time registered</th>
+                    <th>Ballot name</th>
+                    <th>Ballot end date</th>
+                    <th>Ballot address</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for ballot in available_ballots_list %}
+                    <tr>
+                        <td> {{ ballot.ballot_id }} </td>
+                        <td> {{ ballot.created_on }} </td>
+                        <td> {{ ballot.ballot_name }} </td>
+                        <td> {{ ballot.ballot_end_date }}</td>
+                        <td>
+                            <a href="https://ropsten.etherscan.io/address/{{ ballot.ballot_address }}">{{ ballot.ballot_address }}</a>
+                        </td>
+                        <td>
+                           <form action="/view_ballot/{{ ballot.ballot_id }}/" method="get">
+                                {% csrf_token %}
+                                <input type="hidden" name="ballot_id" value="{{ ballot.ballot_id }}">
+                                <input class="btn btn-primary btn-sm" type="submit" name="action_type" value="view"/>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript">
+        {#$(function () {#}
+        {#    $('#my-select').multiSelect({#}
+        {##}
+        {#        afterSelect: function (value, text) {#}
+        {#            var get_val = $("#ballot_ids").val();#}
+        {#            var hidden_val = (get_val != "") ? get_val + "," : get_val;#}
+        {#            $("#ballot_ids").val(hidden_val + "" + value);#}
+        {#        },#}
+        {#        },#}
+        {##}
+        {##}
+        {#        afterDeselect: function (value, text) {#}
+        {#            var get_val = $("#ballot_ids").val();#}
+        {#            var new_val = get_val.replace(value, "");#}
+        {#            $("#ballot_ids").val(new_val);#}
+        {#        }#}
+        {#    });#}
+        {##}
+        {#    console.log("Setup complete")#}
+        {#})
+        ;
+        #}
+
+    </script>
+{% endblock %}
