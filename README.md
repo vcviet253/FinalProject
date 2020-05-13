@@ -1,21 +1,22 @@
 # FinalProject
 
 1. Install python
+
 Install python 3.8 and python-pip
 
 2. Setup virtual environment
 
-Make a directory 'envs'
+- Make a directory 'envs'
 
 mkdir envs
 
 
-Create virtual environment 
+- Create virtual environment 
 
 virtualenv ./envs/
 
 
-Activate the virtual environment
+- Activate the virtual environment
 
 source envs/bin/activate
 
