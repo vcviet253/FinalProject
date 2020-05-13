@@ -9,13 +9,16 @@ Make a directory 'envs'
 
 mkdir envs
 
+
 Create virtual environment 
 
 virtualenv ./envs/
 
+
 Activate the virtual environment
 
 source envs/bin/activate
+
 
 3. Clone git repository
 
