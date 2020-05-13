@@ -357,20 +357,15 @@ def vote(request, param_ballot_id):
                       {'ballot': ballot_info, 'action_type': action_type, 'registered': registered, 'voted': voted, })
 
     elif request.method == 'POST' and 'vote_button' in request.POST:
-        print('vote_button')
         pwd = request.POST['voter_password']
-        print(pwd)
         voted_index = request.POST.getlist('voted_index')
-        print(voted_index)
         converted_to_int_vote_index = [int(i) for i in voted_index]
-        print(converted_to_int_vote_index)
         ballot_address = request.POST['ballot_address']
 
         # Check number of votes casted
         max_vote = request.POST['max_vote']
         max_vote = int(max_vote)
 
-        print(max_vote)
         if len(converted_to_int_vote_index) == 0 or len(converted_to_int_vote_index) > max_vote:
             messages.warning(request, f'You can only vote for {max_vote} option(s)')
             return redirect('/vote/' + str(param_ballot_id))
