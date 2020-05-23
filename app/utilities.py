@@ -27,8 +27,7 @@ def handle_uploaded_files(file):
     results = []
     for row in file:
         line = str(row, 'utf-8')
-        if (validate_email(line)):
-            results.append(line.strip())
+        results.append(line.strip())
     return results
 
 # Get a list of voter and register them to ballot in database, send email to each user
